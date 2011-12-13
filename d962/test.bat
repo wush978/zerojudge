@@ -1,0 +1,1 @@
+Debug\d962.exe < test.txt
