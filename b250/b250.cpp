@@ -4,87 +4,46 @@
  *  Created on: Dec 26, 2011
  *      Author: wush
  */
-#include <cassert>
-#include <iostream>
-#include <string>
-#include <vector>
 
-typedef unsigned int Count;
-typedef unsigned short Weight;
+#include "b250.h"
 
-enum NodeType
+typedef Node<Weight> WeightedNode;
+
+void sum_child(WeightedNode& node)
 {
-	Branch = 0,
-	Leaf,
-};
+	Weight left(0), right(0);
+	WeightedNode *temp;
+	if (node.get_left()) {
+		temp = node.get_left();
+		left = temp->get_content();
+	}
+	if (node.get_right()) {
+		temp = node.get_right();
+		right = temp->get_content();
+	}
+	node.set_content(left + right);
+}
 
-struct Node
+bool retval;
+void check_child(WeightedNode& node)
 {
-	NodeType _type;
-	Weight _weight;
-	Node* _parent;
-	Node* _left;
-	Node* _right;
-	Node() : _type(Leaf), _weight(0), _parent(NULL), _left(NULL), _right(NULL) { }
-	Node(Node* parent) : _type(Leaf), _weight(0), _parent(parent), _left(NULL), _right(NULL) { }
-	~Node()
-	{
-		if (_type == Branch)
-		{
-			delete _left;
-			delete _right;
-			return;
-		}
-		assert(!_left);
-		assert(!_right);
+	Weight left(0), right(0);
+	WeightedNode *temp;
+	if (node.get_left()) {
+		temp = node.get_left();
+		left = temp->get_content();
+		temp = node.get_right();
+		right = temp->get_content();
+		retval &= (left == right);
 	}
-	static Node* TravelToRight(const Node& src)
-	{
-		assert(src._parent);
-		Node* current_place = src._parent;
-		current_place->sum();
-		while (current_place->_right)
-		{
-			current_place = current_place->_parent;
-			current_place->sum();
-		}
-		current_place->_right = new Node(current_place);
-		return current_place->_right;
-	}
-	void sum()
-	{
-		if ( this->_left && this->_right )
-		{
-			this->_weight = this->_left->_weight + this->_right->_weight;
-		}
-	}
-	Node* get_root()
-	{
-		if (!this->_parent)
-			return this;
-		Node* retval = this->_parent;
-		while(retval->_parent)
-		{
-			retval = retval->_parent;
-		}
-		return retval;
-	}
-	bool is_valid()
-	{
-		if (_type == Branch)
-		{
-			return _left->_weight == _right->_weight;
-		}
-		return true;
-	}
-};
-
+	return;
+}
 
 int main()
 {
 	Count quiz_size;
-	std::vector<std::string> quiz;
 	std::cin >> quiz_size;
+	std::vector< std::string > quiz;
 	quiz.resize(quiz_size);
 	for (Count i = 0;i < quiz_size;i++)
 	{
@@ -93,63 +52,42 @@ int main()
 
 	for (Count i = 0;i < quiz_size;i++)
 	{
-		Node* node = new Node();
-		const std::string& chime(quiz[i]);
-		Weight weight = 0;
-		for (Count j = 0;j < chime.size();j++)
+		const std::string& current_quiz(quiz[i]);
+		WeightedNode *root = new WeightedNode;
+		WeightedNode *node = root;
+		Weight weight(0);
+		for (Count j = 0;j < current_quiz.size();j++)
 		{
-			if (chime[j] == '(')
-			{
-				node->_type = Branch;
-				node->_left = new Node(node);
-				node = node->_left;
+			if (current_quiz[j] == '(') {
+				node->span();
+				node = node->get_left();
 				continue;
 			}
-			if (chime[j] == ',')
-			{
-				node = Node::TravelToRight(*node);
+			if (current_quiz[j] == ')') {
+				node = node->get_parent();
 				continue;
 			}
-			if (chime[j] == ')')
-			{
+			if (current_quiz[j] == ',') {
+				node = node->get_parent();
+				node = node->get_right();
 				continue;
 			}
 			weight *= 10;
-			weight += chime[j] - '0';
-			if (chime[j+1] - '0' < 0)
-			{
-				node->_weight = weight;
+			weight += current_quiz[i] - '0';
+			if (current_quiz[j+1] - '0' < 0) {
+				node->set_content(weight);
 				weight = 0;
 			}
 		}
-		Node *prev = NULL, *current = node->get_root(), *next = NULL;
-		while (current)
-		{
-			if (prev == current->_parent)
-			{
-				prev = current;
-				next = current->_left;
-			}
-			if (!next || prev == current->_left)
-			{
-				if (!current->is_valid())
-				{
-					std::cout << "No" << std::endl;
-					break;
-				}
-				prev = current;
-				next = current->_right;
-			}
-			if (!next || prev == current->_right)
-			{
-				prev = current;
-				next = current->_parent;
-			}
-			current = next;
+		Node<Weight>::apply_tree(root, &sum_child);
+		retval = true;
+		Node<Weight>::apply_tree(root, &check_child);
+		if (retval) {
+			std::cout << "Yes" << std::endl;
 		}
-		node = node->get_root();
-		delete node;
+		else {
+			std::cout << "No" << std::endl;
+		}
 	}
+	return 0;
 }
-
-
