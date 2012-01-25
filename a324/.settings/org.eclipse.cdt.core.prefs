@@ -1,0 +1,7 @@
+#Wed Jan 25 14:19:54 CST 2012
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1349010992/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1349010992/appendContributed=true
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1349010992/include/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1349010992/include/operation=append
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1349010992/include/value=/usr/include/c++/4.6;/usr/include/c++/4.6/x86_64-linux-gnu/.;/usr/include/c++/4.6/backward;/usr/lib/gcc/x86_64-linux-gnu/4.6.1/include;/usr/local/include;/usr/lib/gcc/x86_64-linux-gnu/4.6.1/include-fixed;/usr/include/x86_64-linux-gnu;/usr/include
